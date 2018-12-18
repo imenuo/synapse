@@ -64,7 +64,9 @@ class Synapse::ServiceWatcher
 
           tasks = JSON.parse(response.body).fetch('tasks', [])
           port_index = @discovery['port_index'] || 0
-          backends = tasks.keep_if { |task| task['startedAt'] }.map do |task|
+          backends = tasks.keep_if do |task|
+            task['startedAt'] && task.fetch('state', 'TASK_RUNNING') == 'TASK_RUNNING'
+          end.map do |task|
             {
               'name' => task['host'],
               'host' => task['host'],
